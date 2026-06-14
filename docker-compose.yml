@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: delupe_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+    depends_on:
+      - db
+    networks:
+      - delupe_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: delupe_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - delupe_network
+
+  db:
+    image: postgres:15-alpine
+    container_name: delupe_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: delupe_db
+      POSTGRES_USER: delupe_user
+      POSTGRES_PASSWORD: delupe_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - delupe_network
+
+  queue:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: delupe_queue
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+    depends_on:
+      - db
+    command: php artisan queue:work --sleep=3 --tries=3
+    networks:
+      - delupe_network
+
+networks:
+  delupe_network:
+    driver: bridge
+
+volumes:
+  pgdata:
+EOF
