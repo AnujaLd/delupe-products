@@ -94,8 +94,10 @@ jobs:
           QUEUE_CONNECTION: sync
         run: php artisan test
 
+      - name: Install Larastan for PHPStan
+        working-directory: src
+        run: composer require --dev nunomaduro/larastan --no-interaction || true
+
       - name: Run PHPStan static analysis
         working-directory: src
-        run: |
-          composer require --dev phpstan/phpstan --no-interaction || true
-          vendor/bin/phpstan analyse app --level=5 --no-progress || true
+        run: vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress || true
