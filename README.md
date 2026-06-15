@@ -342,8 +342,6 @@ Run tests inside the container (recommended):
 docker-compose exec app ./vendor/bin/phpunit
 ```
 
-Or run locally (after `composer install`):
-
 ```powershell
 cd src
 ./vendor/bin/phpunit
@@ -351,15 +349,6 @@ cd src
 
 ## Troubleshooting
 
-- Postgres not ready: the first `php artisan migrate` may fail if DB isn't ready. Retry a few seconds later or check `docker-compose logs db`.
-- Port 8080 taken: edit `docker-compose.yml` or stop the service using the port.
 - `Unauthorized` 401 responses: ensure `X-API-Key` header matches `API_KEY` from `src/.env`.
 - If imports don't show up: verify the importer logged progress in `storage/logs/laravel.log` and that a queue worker is running (if queue connection is not `sync`).
 
-
-## TL;DR - minimal commands (Docker)
-
-```powershell
-docker-compose up -d --build
-docker-compose exec app php artisan migrate --force
-docker-compose exec app php artisan app:import-products /var/www/products.json
