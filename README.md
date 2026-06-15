@@ -115,31 +115,6 @@ cd delupe-products
 
 ---
 
-## Step 2: Configure Environment
-
-```bash
-cp src/.env.example src/.env
-```
-
-Open `src/.env` and make sure these values are set:
-
-```env
-APP_NAME=DelupeProducts
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8080
-
-DB_CONNECTION=pgsql
-DB_HOST=db
-DB_PORT=5432
-DB_DATABASE=delupe_db
-DB_USERNAME=delupe_user
-DB_PASSWORD=delupe_pass
-
-QUEUE_CONNECTION=database
-
-API_KEY=my-secret-api-key-12345
-```
 
 ## One-command Docker run (cross-platform)
 
