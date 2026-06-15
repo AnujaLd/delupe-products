@@ -178,7 +178,7 @@ Below is a complete list of available API endpoints, whether authentication is r
 ## Prerequisites
 
 - Docker & Docker Compose (recommended).
-- If running natively: PHP 8.1+, Composer, PostgreSQL (or you can use Docker DB).
+- If running natively: PHP 8.1+, Composer, PostgreSQL
 
 ## Environment variables
 
