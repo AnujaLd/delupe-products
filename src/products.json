@@ -1,0 +1,41 @@
+[
+  {
+    "merchant_id": "M001",
+    "name": "Blue Sneakers",
+    "link": "https://shop.com/blue-sneakers",
+    "image_link": "https://shop.com/images/blue-sneakers.jpg",
+    "price": 89.99,
+    "currency": "USD"
+  },
+  {
+    "merchant_id": "M001",
+    "name": "Red Dress",
+    "link": "https://shop.com/red-dress",
+    "image_link": "https://shop.com/images/red-dress.jpg",
+    "price": 149.99,
+    "original_price": 199.99,
+    "currency": "EUR"
+  },
+  {
+    "merchant_id": "M002",
+    "name": "Leather Bag",
+    "link": "https://shop.com/leather-bag",
+    "image_link": "https://shop.com/images/leather-bag.jpg",
+    "price": 249.00,
+    "currency": "GBP"
+  },
+  {
+    "merchant_id": "M002",
+    "name": "Blue Sneakers",
+    "link": "https://shop.com/blue-sneakers-v2",
+    "price": 75.00,
+    "currency": "USD"
+  },
+  {
+    "merchant_id": "M003",
+    "name": "",
+    "link": "https://shop.com/invalid",
+    "price": -10,
+    "currency": "XYZ"
+  }
+]
