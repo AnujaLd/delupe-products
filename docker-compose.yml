@@ -10,6 +10,13 @@ services:
     working_dir: /var/www
     volumes:
       - ./src:/var/www
+    environment:
+      DO_COMPOSER: '1'
+      DB_HOST: db
+      DB_PORT: '5432'
+      DB_DATABASE: delupe_db
+      DB_USERNAME: delupe_user
+      DB_PASSWORD: delupe_pass
     depends_on:
       - db
     networks:
@@ -53,6 +60,13 @@ services:
     working_dir: /var/www
     volumes:
       - ./src:/var/www
+    environment:
+      DO_COMPOSER: '1'
+      DB_HOST: db
+      DB_PORT: '5432'
+      DB_DATABASE: delupe_db
+      DB_USERNAME: delupe_user
+      DB_PASSWORD: delupe_pass
     depends_on:
       - db
     command: php artisan queue:work --sleep=3 --tries=3
