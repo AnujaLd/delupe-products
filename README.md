@@ -141,6 +141,25 @@ QUEUE_CONNECTION=database
 API_KEY=my-secret-api-key-12345
 ```
 
+## One-command Docker run (PowerShell)
+
+To build the images, start the containers, run Composer install, generate the app key, run migrations and import sample data with a single command on Windows PowerShell, use the included `run-docker.ps1` script:
+
+```powershell
+.\run-docker.ps1
+```
+
+The script will:
+
+- Start `docker-compose` (build + detach)
+- Wait for Postgres to accept connections
+- Run `composer install` inside the `delupe_app` container
+- Run `php artisan key:generate`
+- Run `php artisan migrate --force`
+- Run `php artisan app:import-products /var/www/products.json`
+
+If you prefer to run steps manually, follow the "Running with Docker (recommended)" section above.
+
 ## Quick summary
 
 - App: Laravel 10 API that stores product records in PostgreSQL.
