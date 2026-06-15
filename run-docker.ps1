@@ -40,5 +40,9 @@ if ( ((Get-Date) - $start).TotalSeconds -ge $TimeoutSeconds ) {
     Write-Host "Importing sample products.json..."
     docker exec -w /var/www delupe_app php artisan app:import-products /var/www/products.json
 
+    Write-Host "Starting a queue worker inside the app container (background)..."
+    # run the Laravel queue worker in the background inside the container
+    docker exec -d -w /var/www delupe_app php artisan queue:work --sleep=3 --tries=3
+
     Write-Host "All done. App should be available at http://localhost:8080"
 }

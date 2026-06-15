@@ -211,37 +211,10 @@ When running Docker Compose the `src` folder is mounted into the app container, 
 
 ## Running with Docker (recommended)
 
-1. From the repository root, start Docker Compose (builds the PHP image and starts services):
+You can use the helper script `run-docker.ps1` on Windows to perform the full setup (build, migrations, import, and start a queue worker):
 
 ```powershell
-docker-compose up -d --build
-```
-
-2. Wait a few seconds for the Postgres container to be ready. Then run migrations:
-
-```powershell
-docker-compose exec app php artisan migrate --force
-```
-
-3. (Optional) Import the sample `products.json` bundled in `src/`:
-
-```powershell
-# the file is available inside the container at /var/www/products.json
-docker-compose exec app php artisan app:import-products /var/www/products.json
-```
-
-4. Open the API at: http://localhost:8080 (Nginx on port 8080 is mapped in `docker-compose.yml`).
-
-5. The repository includes a `queue` service. If you want to run a dedicated worker use the `queue` service (already defined in the compose file) or run a worker manually in the `app` container:
-
-```powershell
-docker-compose exec app php artisan queue:work --sleep=3 --tries=3
-```
-
-Stopping and removing containers:
-
-```powershell
-docker-compose down
+.\run-docker.ps1
 ```
 
 ## API Reference (Postman tutorial)
