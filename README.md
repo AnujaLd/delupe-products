@@ -374,3 +374,17 @@ cd src
 - `Unauthorized` 401 responses: ensure `X-API-Key` header matches `API_KEY` from `src/.env`.
 - If imports don't show up: verify the importer logged progress in `storage/logs/laravel.log` and that a queue worker is running (if queue connection is not `sync`).
 
+## Viewing logs
+
+To inspect application logs from the app container use the following Docker commands (run from the project root):
+
+```bash
+# show last 200 lines in app container
+docker compose exec app tail -n 200 storage/logs/laravel.log
+
+# follow log live inside container
+docker compose exec app tail -f storage/logs/laravel.log
+```
+
+These commands let you quickly view recent log activity and follow new log entries as they are written.
+

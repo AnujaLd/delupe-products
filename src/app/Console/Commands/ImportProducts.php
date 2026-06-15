@@ -32,8 +32,9 @@ class ImportProducts extends Command
             return;
         }
 
-        Log::info('Import started', ['file' => $file, 'total' => count($data)]);
-        $this->info("Starting import of " . count($data) . " records...");
+    // Log import start (human-friendly single-line message + structured context)
+    Log::info('Import started - file: ' . $file . ', total: ' . count($data), ['file' => $file, 'total' => count($data)]);
+    $this->info("Starting import of " . count($data) . " records...");
 
         $imported = $updated = $failed = 0;
 
@@ -42,10 +43,15 @@ class ImportProducts extends Command
 
             if (!empty($errors)) {
                 $failed++;
-                Log::warning("Validation failed for record $index", [
-                    'errors' => $errors,
-                    'record' => $item
-                ]);
+                // Log each validation error as a separate warning to make it easy to grep
+                $displayIndex = $index + 1; // make record numbers 1-based for humans
+                foreach ($errors as $err) {
+                    Log::warning("Record {$displayIndex} failed - {$err}", [
+                        'record_index' => $displayIndex,
+                        'error' => $err,
+                        'record' => $item,
+                    ]);
+                }
                 continue;
             }
 
@@ -58,7 +64,9 @@ class ImportProducts extends Command
             $exists ? $updated++ : $imported++;
         }
 
-        Log::info('Import completed', [
+        // Total successes = imported + updated
+        $succeeded = $imported + $updated;
+        Log::info('Import completed - imported:' . $succeeded . ', failed:' . $failed, [
             'imported' => $imported,
             'updated'  => $updated,
             'failed'   => $failed,
