@@ -1,0 +1,63 @@
+name: CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: delupe_db
+          POSTGRES_USER: delupe_user
+          POSTGRES_PASSWORD: delupe_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_pgsql, mbstring, bcmath
+
+      - name: Install Composer dependencies
+        working-directory: src
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup environment
+        working-directory: src
+        run: |
+          cp .env.example .env
+          echo "DB_CONNECTION=pgsql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_DATABASE=delupe_db" >> .env
+          echo "DB_USERNAME=delupe_user" >> .env
+          echo "DB_PASSWORD=delupe_pass" >> .env
+          echo "API_KEY=my-secret-api-key-12345" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
+          php artisan key:generate
+
+      - name: Run migrations
+        working-directory: src
+        run: php artisan migrate --force
+
+      - name: Run tests
+        working-directory: src
+        run: php artisan test --verbose
+
+      - name: Run PHPStan static analysis
+        working-directory: src
+        run: |
+          composer require --dev phpstan/phpstan --no-interaction || true
+          vendor/bin/phpstan analyse app --level=5 --no-progress || true
