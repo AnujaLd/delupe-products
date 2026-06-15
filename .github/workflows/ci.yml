@@ -2,6 +2,9 @@ name: CI Pipeline
 
 on: [push, pull_request]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -32,40 +35,64 @@ jobs:
           extensions: pdo_pgsql, mbstring, bcmath
           coverage: none
 
-      - name: Cache Composer packages
-        uses: actions/cache@v4
-        with:
-          path: src/vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('src/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
       - name: Install Composer dependencies
         working-directory: src
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Setup environment
+      - name: Copy env file
+        working-directory: src
+        run: cp .env.example .env
+
+      - name: Generate app key
+        working-directory: src
+        run: php artisan key:generate
+
+      - name: Override DB settings
         working-directory: src
         run: |
-          cp .env.example .env
-          echo "" >> .env
-          echo "DB_CONNECTION=pgsql" >> .env
-          echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=5432" >> .env
-          echo "DB_DATABASE=delupe_db" >> .env
-          echo "DB_USERNAME=delupe_user" >> .env
-          echo "DB_PASSWORD=delupe_pass" >> .env
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=pgsql/' .env
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/DB_PORT=.*/DB_PORT=5432/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=delupe_db/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=delupe_user/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=delupe_pass/' .env
+
+      - name: Add extra env vars
+        working-directory: src
+        run: |
           echo "API_KEY=my-secret-api-key-12345" >> .env
           echo "QUEUE_CONNECTION=sync" >> .env
-          php artisan key:generate
+
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h 127.0.0.1 -p 5432 -U delupe_user; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
 
       - name: Run migrations
         working-directory: src
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: delupe_db
+          DB_USERNAME: delupe_user
+          DB_PASSWORD: delupe_pass
         run: php artisan migrate --force
 
       - name: Run automated tests
         working-directory: src
-        run: php artisan test --verbose
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: delupe_db
+          DB_USERNAME: delupe_user
+          DB_PASSWORD: delupe_pass
+          API_KEY: my-secret-api-key-12345
+          QUEUE_CONNECTION: sync
+        run: php artisan test
 
       - name: Run PHPStan static analysis
         working-directory: src
