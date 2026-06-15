@@ -31,6 +31,10 @@ if ( ((Get-Date) - $start).TotalSeconds -ge $TimeoutSeconds ) {
     Write-Host "Installing Composer dependencies inside container (if needed)..."
     docker exec -w /var/www delupe_app composer install --no-interaction --prefer-dist
 
+    Write-Host "Setting permissions for storage and bootstrap/cache..."
+    docker exec delupe_app chmod -R 775 storage bootstrap/cache
+    docker exec delupe_app chown -R www-data:www-data storage bootstrap/cache
+
     Write-Host "Generating app key..."
     docker exec -w /var/www delupe_app php artisan key:generate --ansi
 
