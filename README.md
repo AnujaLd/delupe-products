@@ -214,6 +214,31 @@ When running Docker Compose the `src` folder is mounted into the app container, 
 
 Start the full application with the single cross-platform command shown above. If you need to run steps manually, use `docker compose` or `docker-compose` subcommands and `docker compose exec` to run artisan commands inside the app container.
 
+## PRICE ADJUSTMENT COMMAND
+
+Adjust product prices with the built-in artisan command `app:update-prices`. The recommended way is to run it inside the project's PHP container so it uses the same PHP/runtime as the app
+
+Docker (exec into running app container):
+
+```powershell
+docker compose exec app php artisan app:update-prices 10
+```
+
+One-off container run (doesn't require the app container to be already running):
+
+```powershell
+docker compose run --rm app php artisan app:update-prices 10
+```
+
+If you prefer to run the command natively on your machine, ensure your local PHP matches the project's requirements (PHP >= 8.4.1) and run:
+
+```powershell
+cd src
+php artisan app:update-prices 10
+```
+
+Replace `10` with the percentage or value your `UpdatePrices` command expects (check `src/app/Console/Commands/UpdatePrices.php` for exact argument semantics).
+
 ## API Reference (Postman tutorial)
 
 This section shows how to run and test the API using Postman only (no collection file is included). You'll create a small Postman collection and four requests (Health, List Products, Summary, Duplicates) and add simple tests to each request.
