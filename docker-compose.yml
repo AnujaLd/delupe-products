@@ -11,8 +11,10 @@ services:
     volumes:
       - ./src:/var/www
     environment:
+      API_KEY: "my-secret-api-key-12345"
+      DB_CONNECTION: pgsql
       DO_COMPOSER: '1'
-      DB_HOST: db
+      DB_HOST: delupe_db
       DB_PORT: '5432'
       DB_DATABASE: delupe_db
       DB_USERNAME: delupe_user
@@ -61,8 +63,9 @@ services:
     volumes:
       - ./src:/var/www
     environment:
+      DB_CONNECTION: pgsql
       DO_COMPOSER: '1'
-      DB_HOST: db
+      DB_HOST: delupe_db
       DB_PORT: '5432'
       DB_DATABASE: delupe_db
       DB_USERNAME: delupe_user
