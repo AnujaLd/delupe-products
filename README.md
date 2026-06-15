@@ -141,22 +141,23 @@ QUEUE_CONNECTION=database
 API_KEY=my-secret-api-key-12345
 ```
 
-## One-command Docker run (PowerShell)
+## One-command Docker run (cross-platform)
 
-To build the images, start the containers, run Composer install, generate the app key, run migrations and import sample data with a single command on Windows PowerShell, use the included `run-docker.ps1` script:
+To build the images, start the containers, install Composer dependencies, generate the app key, run migrations, and import sample data with a single cross-platform command, run:
 
-```powershell
-.\run-docker.ps1
+```bash
+docker compose up --build -d
 ```
 
-The script will:
+This command works the same on macOS, Linux, and Windows (with Docker Desktop or Docker Engine installed).
 
-- Start `docker-compose` (build + detach)
-- Wait for Postgres to accept connections
-- Run `composer install` inside the `delupe_app` container
-- Run `php artisan key:generate`
-- Run `php artisan migrate --force`
-- Run `php artisan app:import-products /var/www/products.json`
+What happens during container startup:
+
+- The app container waits for the database to be ready.
+- Composer is run inside the container if vendor dependencies are missing.
+- `php artisan key:generate` is run when needed.
+- `php artisan migrate --force` and `php artisan db:seed --force` are executed.
+- If `products.json` is present at the project root, it is imported via `php artisan app:import-products`.
 
 If you prefer to run steps manually, follow the "Running with Docker (recommended)" section above.
 
@@ -211,11 +212,7 @@ When running Docker Compose the `src` folder is mounted into the app container, 
 
 ## Running with Docker (recommended)
 
-You can use the helper script `run-docker.ps1` on Windows to perform the full setup (build, migrations, import, and start a queue worker):
-
-```powershell
-.\run-docker.ps1
-```
+Start the full application with the single cross-platform command shown above. If you need to run steps manually, use `docker compose` or `docker-compose` subcommands and `docker compose exec` to run artisan commands inside the app container.
 
 ## API Reference (Postman tutorial)
 
