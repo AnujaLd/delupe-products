@@ -109,7 +109,7 @@ delupe-products/
 ## Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/delupe-products.git
+git clone https://github.com/AnujaLd/delupe-products.git
 cd delupe-products
 ```
 
@@ -147,6 +147,24 @@ API_KEY=my-secret-api-key-12345
 - Run with Docker Compose (recommended) or natively with PHP + Composer.
 - Protected API: `X-API-Key` header (set by `API_KEY` in your `.env`).
 - Important endpoints: `/api/health`, `/api/products`, `/api/products/summary`, `/api/products/duplicates`.
+
+## API Endpoints
+
+Below is a complete list of available API endpoints, whether authentication is required, and a short description for each.
+
+| # | Method | Endpoint | Auth Required | Description |
+|---:|:-------|:---------|:--------------:|:------------|
+| 1 | GET | /api/health | ❌ | Health check |
+| 2 | GET | /api/products | ✅ | Get all products |
+| 3 | GET | /api/products?currency=USD | ✅ | Filter by currency |
+| 4 | GET | /api/products?min_price=100 | ✅ | Filter min price |
+| 5 | GET | /api/products?max_price=200 | ✅ | Filter max price |
+| 6 | GET | /api/products?min_price=50&max_price=200 | ✅ | Filter price range |
+| 7 | GET | /api/products?page=1&limit=2 | ✅ | Pagination |
+| 8 | GET | /api/products?currency=USD&min_price=50&max_price=500&page=1&limit=10 | ✅ | All filters combined |
+| 9 | GET | /api/products/summary | ✅ | Price summary (count, total, average, currencies) |
+|10 | GET | /api/products/duplicates | ✅ | Find duplicate products by name or link |
+
 
 ## Repository layout (relevant files)
 
