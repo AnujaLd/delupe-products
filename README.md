@@ -126,6 +126,8 @@ docker compose up --build -d
 
 Important: If the terminal shows the Docker build completed successfully but the API returns a 502 Bad Gateway or an HTML page, the services are still processing/initialising. On lower-performance laptops this can take longer — please wait about 2–15 minutes and then check the API again; it should work once initialisation (PHP-FPM, migrations, composer install, seeding) finishes.
 
+If you use Docker Desktop, you can also open the Docker Desktop app and check the Containers / Apps view or the Logs panel — if a container shows "starting" or the logs show startup activity, the stack is still initializing. Please wait until the containers report as running and the startup logs finish before calling the API.
+
 This command works the same on macOS, Linux, and Windows (with Docker Desktop or Docker Engine installed).
 
 What happens during container startup:
@@ -359,6 +361,8 @@ docker compose logs -f app
 ```
 
 If the logs show migration, seeding, composer install, or PHP-FPM startup messages, the app is still loading — wait until the logs stop showing startup activity or you see messages indicating the application is ready, then call the API.
+
+- Docker Desktop users: the Docker Desktop UI also shows container status and logs. If the app or db container is still starting in Docker Desktop, wait until it reports "running" (or the logs stop showing startup activity) — this can take 2–15 minutes on slower machines.
 
 - `Unauthorized` 401 responses: ensure the `X-API-Key` header matches the API key set in `docker-compose.yml` (default: `my-secret-api-key-12345`).
 - If imports don't show up: verify the importer logged progress in `storage/logs/laravel.log` and that a queue worker is running (if queue connection is not `sync`).
