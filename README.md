@@ -151,7 +151,7 @@ Step-by-step Postman setup
 1. Open Postman and create a new Collection. Name it `Delupe Products`.
 2. Create a new Environment (click the gear icon → Manage Environments). Add two variables:
   - `baseUrl` = `http://localhost:8080`
-  - `API_KEY` = `my-secret-api-key-12345` (the project sets this value in `docker-compose.yml` at the repository root)
+  -  Header - (Key)`X-API-Key` = (Value)`my-secret-api-key-12345` (the project sets this value in `docker-compose.yml` at the repository root)
 3. Select the `Delupe Products` collection and add four requests (below). For each request, set the URL using the environment variable, e.g. `{{baseUrl}}/api/health`.
 
 Requests and tests to add
@@ -296,10 +296,7 @@ Below is a complete list of available API endpoints, whether authentication is r
 Copy `src/.env` (provided in repo) or create from `src/.env.example` and configure these values as needed:
 
 - `APP_URL` — base URL (default: `http://localhost:8080`).
-- `API_KEY` — API key used by the `X-API-Key` header. Default in repo: `my-secret-api-key-12345`.
-- `DB_*` — standard Laravel DB connection variables (the Docker compose file creates a `db` service with PostgreSQL and sensible defaults).
-
-When running Docker Compose the `src` folder is mounted into the app container, so the `.env` inside `src/` is the active environment file.
+- `API_KEY` — API key used by the (Header -`X-API-Key`). Default value in repo: (Value is the `my-secret-api-key-12345`.)
 
 ## Running with Docker (recommended)
 
