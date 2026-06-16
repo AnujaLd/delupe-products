@@ -124,6 +124,8 @@ To build the images, start the containers, install Composer dependencies, genera
 docker compose up --build -d
 ```
 
+Important: a successful build will complete, but it can take time depending on your computer (typically ~2 minutes on fast machines up to ~15 minutes on slower laptops). Right after the containers start the API may return a 502 Bad Gateway or an HTML page while services (PHP-FPM, the app container, and the database) finish initialising. If you see 502 or unexpected HTML, wait 2–15 minutes and try the API again — it should become available once the containers and migrations finish.
+
 This command works the same on macOS, Linux, and Windows (with Docker Desktop or Docker Engine installed).
 
 What happens during container startup:
@@ -136,11 +138,123 @@ What happens during container startup:
 
 If you prefer to run steps manually, follow the "Running with Docker (recommended)" section above.
 
+## API Reference (Postman tutorial)
+
+This section shows how to run and test the API using Postman only (no collection file is included). You'll create a small Postman collection and four requests (Health, List Products, Summary, Duplicates) and add simple tests to each request.
+
+Prerequisite: the app should be running (for Docker see the "Running with Docker" section above). The base URL used below is `http://localhost:8080`.
+
+Step-by-step Postman setup
+
+1. Open Postman and create a new Collection. Name it `Delupe Products`.
+2. Create a new Environment (click the gear icon → Manage Environments). Add two variables:
+  - `baseUrl` = `http://localhost:8080`
+  - `API_KEY` = `my-secret-api-key-12345` (the project sets this value in `docker-compose.yml` at the repository root)
+3. Select the `Delupe Products` collection and add four requests (below). For each request, set the URL using the environment variable, e.g. `{{baseUrl}}/api/health`.
+
+Requests and tests to add
+
+- Health — GET `{{baseUrl}}/api/health`
+  - Authorization: none
+  - (Suggested test in Postman: assert HTTP 200 and that `status` === "ok")
+
+  - Example response JSON:
+
+    ```json
+    {
+      "status": "ok",
+      "database": "connected"
+    }
+    ```
+
+- List Products — GET `{{baseUrl}}/api/products`
+  - Params (optional): `currency=USD`, `min_price=0`, `max_price=1000`, `limit=20`
+  - Header: `X-API-Key: my-secret-api-key-12345`
+  - (Suggested tests in Postman: assert HTTP 200, presence of `data` and pagination fields, and that `data` is an array)
+
+  - Example response JSON (paginated):
+
+    ```json
+    {
+      "data": [
+        {
+          "id": 1,
+          "merchant_id": "M001",
+          "name": "Blue Sneakers",
+          "link": "https://shop.com/blue-sneakers",
+          "image_link": "https://shop.com/images/blue-sneakers.jpg",
+          "price": "89.99",
+          "original_price": null,
+          "currency": "USD",
+          "created_at": "2026-06-14T19:51:00.000000Z",
+          "updated_at": "2026-06-14T19:51:00.000000Z"
+        }
+      ],
+      "current_page": 1,
+      "last_page": 1,
+      "per_page": 50,
+      "total": 1
+    }
+    ```
+
+- Summary — GET `{{baseUrl}}/api/products/summary`
+  - Header: `X-API-Key: my-secret-api-key-12345`
+  - (Suggested tests in Postman: assert HTTP 200 and presence of `count`, `total_price`, and `average_price`)
+
+  - Example response JSON:
+
+    ```json
+    {
+      "count": 10,
+      "total_price": 1234.56,
+      "average_price": 123.46,
+      "currencies": {
+        "USD": 8,
+        "EUR": 2
+      }
+    }
+    ```
+
+- Duplicates — GET `{{baseUrl}}/api/products/duplicates`
+  - Header: `X-API-Key: my-secret-api-key-12345`
+  - (Suggested tests in Postman: assert HTTP 200 and that the response is an array)
+
+  - Example response JSON (array of duplicated product objects):
+
+    ```json
+    [
+      {
+        "id": 1,
+        "merchant_id": "M001",
+        "name": "Blue Sneakers",
+        "link": "https://shop.com/blue-sneakers",
+        "image_link": "https://shop.com/images/blue-sneakers.jpg",
+        "price": "89.99",
+        "original_price": null,
+        "currency": "USD",
+        "created_at": "2026-06-14T19:51:00.000000Z",
+        "updated_at": "2026-06-14T19:51:00.000000Z"
+      },
+      {
+        "id": 4,
+        "merchant_id": "M002",
+        "name": "Blue Sneakers",
+        "link": "https://shop.com/blue-sneakers-v2",
+        "image_link": null,
+        "price": "75.00",
+        "original_price": null,
+        "currency": "USD",
+        "created_at": "2026-06-14T20:00:00.000000Z",
+        "updated_at": "2026-06-14T20:00:00.000000Z"
+      }
+    ]
+    ```
+
 ## Quick summary
 
 - App: Laravel 10 API that stores product records in PostgreSQL.
 - Run with Docker Compose (recommended) or natively with PHP + Composer.
-- Protected API: `X-API-Key` header (set by `API_KEY` in your `.env`).
+- Protected API: `X-API-Key` header (value set to `my-secret-api-key-12345` in `docker-compose.yml`).
 - Important endpoints: `/api/health`, `/api/products`, `/api/products/summary`, `/api/products/duplicates`.
 
 ## API Endpoints
@@ -214,117 +328,7 @@ php artisan app:update-prices 10
 
 Replace `10` with the percentage or value your `UpdatePrices` command expects (check `src/app/Console/Commands/UpdatePrices.php` for exact argument semantics).
 
-## API Reference (Postman tutorial)
 
-This section shows how to run and test the API using Postman only (no collection file is included). You'll create a small Postman collection and four requests (Health, List Products, Summary, Duplicates) and add simple tests to each request.
-
-Prerequisite: the app should be running (for Docker see the "Running with Docker" section above). The base URL used below is `http://localhost:8080`.
-
-Step-by-step Postman setup
-
-1. Open Postman and create a new Collection. Name it `Delupe Products`.
-2. Create a new Environment (click the gear icon → Manage Environments). Add two variables:
-   - `baseUrl` = `http://localhost:8080`
-   - `API_KEY` = the value from `src/.env` (default `my-secret-api-key-12345`)
-3. Select the `Delupe Products` collection and add four requests (below). For each request, set the URL using the environment variable, e.g. `{{baseUrl}}/api/health`.
-
-Requests and tests to add
-
-- Health — GET `{{baseUrl}}/api/health`
-  - Authorization: none
-  - (Suggested test in Postman: assert HTTP 200 and that `status` === "ok")
-
-  - Example response JSON:
-
-    ```json
-    {
-      "status": "ok",
-      "database": "connected"
-    }
-    ```
-
-- List Products — GET `{{baseUrl}}/api/products`
-  - Params (optional): `currency=USD`, `min_price=0`, `max_price=1000`, `limit=20`
-  - Header: `X-API-Key: {{API_KEY}}`
-  - (Suggested tests in Postman: assert HTTP 200, presence of `data` and pagination fields, and that `data` is an array)
-
-  - Example response JSON (paginated):
-
-    ```json
-    {
-      "data": [
-        {
-          "id": 1,
-          "merchant_id": "M001",
-          "name": "Blue Sneakers",
-          "link": "https://shop.com/blue-sneakers",
-          "image_link": "https://shop.com/images/blue-sneakers.jpg",
-          "price": "89.99",
-          "original_price": null,
-          "currency": "USD",
-          "created_at": "2026-06-14T19:51:00.000000Z",
-          "updated_at": "2026-06-14T19:51:00.000000Z"
-        }
-      ],
-      "current_page": 1,
-      "last_page": 1,
-      "per_page": 50,
-      "total": 1
-    }
-    ```
-
-- Summary — GET `{{baseUrl}}/api/products/summary`
-  - Header: `X-API-Key: {{API_KEY}}`
-  - (Suggested tests in Postman: assert HTTP 200 and presence of `count`, `total_price`, and `average_price`)
-
-  - Example response JSON:
-
-    ```json
-    {
-      "count": 10,
-      "total_price": 1234.56,
-      "average_price": 123.46,
-      "currencies": {
-        "USD": 8,
-        "EUR": 2
-      }
-    }
-    ```
-
-- Duplicates — GET `{{baseUrl}}/api/products/duplicates`
-  - Header: `X-API-Key: {{API_KEY}}`
-  - (Suggested tests in Postman: assert HTTP 200 and that the response is an array)
-
-  - Example response JSON (array of duplicated product objects):
-
-    ```json
-    [
-      {
-        "id": 1,
-        "merchant_id": "M001",
-        "name": "Blue Sneakers",
-        "link": "https://shop.com/blue-sneakers",
-        "image_link": "https://shop.com/images/blue-sneakers.jpg",
-        "price": "89.99",
-        "original_price": null,
-        "currency": "USD",
-        "created_at": "2026-06-14T19:51:00.000000Z",
-        "updated_at": "2026-06-14T19:51:00.000000Z"
-      },
-      {
-        "id": 4,
-        "merchant_id": "M002",
-        "name": "Blue Sneakers",
-        "link": "https://shop.com/blue-sneakers-v2",
-        "image_link": null,
-        "price": "75.00",
-        "original_price": null,
-        "currency": "USD",
-        "created_at": "2026-06-14T20:00:00.000000Z",
-        "updated_at": "2026-06-14T20:00:00.000000Z"
-      }
-    ]
-    ```
 
 Running tests
 
@@ -346,7 +350,16 @@ cd src
 
 ## Troubleshooting
 
-- `Unauthorized` 401 responses: ensure `X-API-Key` header matches `API_KEY` from `src/.env`.
+- If you see a 502 Bad Gateway or the API returns an HTML page right after starting the containers, the services are still initialising. Wait 2–15 minutes (depending on your computer's performance) and try the API again — it should become available once the containers, PHP-FPM, and migrations finish.
+- To check startup progress you can follow the app container logs. From the project root run:
+
+```powershell
+docker compose logs -f app
+```
+
+If the logs show migration, seeding, composer install, or PHP-FPM startup messages, the app is still loading — wait until the logs stop showing startup activity or you see messages indicating the application is ready, then call the API.
+
+- `Unauthorized` 401 responses: ensure the `X-API-Key` header matches the API key set in `docker-compose.yml` (default: `my-secret-api-key-12345`).
 - If imports don't show up: verify the importer logged progress in `storage/logs/laravel.log` and that a queue worker is running (if queue connection is not `sync`).
 
 ## Viewing logs
