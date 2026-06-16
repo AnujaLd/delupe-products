@@ -124,7 +124,7 @@ To build the images, start the containers, install Composer dependencies, genera
 docker compose up --build -d
 ```
 
-Important: a successful build will complete, but it can take time depending on your computer (typically ~2 minutes on fast machines up to ~15 minutes on slower laptops). Right after the containers start the API may return a 502 Bad Gateway or an HTML page while services (PHP-FPM, the app container, and the database) finish initialising. If you see 502 or unexpected HTML, wait 2–15 minutes and try the API again — it should become available once the containers and migrations finish.
+Important: If the terminal shows the Docker build completed successfully but the API returns a 502 Bad Gateway or an HTML page, the services are still processing/initialising. On lower-performance laptops this can take longer — please wait about 2–15 minutes and then check the API again; it should work once initialisation (PHP-FPM, migrations, composer install, seeding) finishes.
 
 This command works the same on macOS, Linux, and Windows (with Docker Desktop or Docker Engine installed).
 
@@ -350,8 +350,9 @@ cd src
 
 ## Troubleshooting
 
-- If you see a 502 Bad Gateway or the API returns an HTML page right after starting the containers, the services are still initialising. Wait 2–15 minutes (depending on your computer's performance) and try the API again — it should become available once the containers, PHP-FPM, and migrations finish.
-- To check startup progress you can follow the app container logs. From the project root run:
+- If the terminal shows the Docker build completed successfully but the API returns a 502 Bad Gateway or an HTML page, the services are still processing/initialising. On lower-performance laptops this can take longer — please wait about 2–15 minutes and then check the API again; it should work once initialisation (PHP-FPM, migrations, composer install, seeding) finishes.
+
+- To check startup progress, follow the app container logs. From the project root run:
 
 ```powershell
 docker compose logs -f app
